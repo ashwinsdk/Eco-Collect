@@ -1,0 +1,138 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.error {
+  color: red;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+nav {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  background: #f0f0f0;
+}
+
+.order-list ul, .partner-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.order-list li, .partner-list li {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.wallet ul {
+  list-style: none;
+  padding: 0;
+}
+
+.wallet li {
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, select, button {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+  background: #007bff;
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background: #0056b3;
+}
+.assign-order {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.success {
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+.order-list .assign-section {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.order-list .partner-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.order-list .accept-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.order-list .reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.order-list .complete-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.error {
+  color: #f44336;
+  margin-bottom: 15px;
+}
