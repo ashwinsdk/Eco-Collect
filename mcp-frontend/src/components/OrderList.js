@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function OrderList({ user }) {
   const [orders, setOrders] = useState([]);
@@ -156,79 +156,76 @@ function OrderList({ user }) {
   if (error) return <p className="error">Error: {error}</p>;
 
   return (
-    <div className="order-list">
-      <h3>{user.role === 'mcp' ? 'Your Orders' : 'Assigned Orders'}</h3>
-      
+    <div className="modern-order-list">
+      <div className="list-header">
+        <h2>{user.role === 'mcp' ? 'Your Orders' : 'Assigned Orders'}</h2>
+        <div className="status-filters">{/* Add status filters if needed */}</div>
+      </div>
       {orders.length === 0 ? (
-        <p>No orders found</p>
+        <div className="empty-state">
+          <p>No orders found</p>
+          {user.role === 'mcp' && (
+            <Link to="/dashboard/new-order" className="landing-btn landing-btn-primary">Create New Order</Link>
+          )}
+        </div>
       ) : (
-        <ul>
+        <div className="order-grid">
           {orders.map(order => (
-            <li key={order._id}>
-              <div>
-                <strong>{order.description}</strong>
-                <p>Amount: ${order.amount}</p>
-                <p>Status: {order.status}</p>
-                {order.partner && (
-                  <p>Partner: {typeof order.partner === 'object' 
-                    ? order.partner.name 
-                    : partners.find(p => p._id === order.partner)?.name || 'Loading...'}
-                  </p>
-                )}
+            <div key={order._id} className={`order-card ${order.status}`}>
+              <div className="card-header">
+                <h3 className="card-title">{order.description}</h3>
+                <span className={`status-badge ${order.status}`}>{order.status}</span>
               </div>
-
-              {/* Rest of your JSX remains the same */}
-              {user.role === 'mcp' && order.status === 'pending' && (
-                <div className="assign-section">
-                  <select
-                    value={selectedPartner}
-                    onChange={(e) => setSelectedPartner(e.target.value)}
-                  >
-                    <option value="">Select Partner</option>
-                    {partners.map(partner => (
-                      <option key={partner._id} value={partner._id}>
-                        {partner.name} ({partner.email})
-                      </option>
-                    ))}
-                  </select>
-                  <button 
-                    onClick={() => assignOrder(order._id)}
-                    disabled={!selectedPartner}
-                  >
-                    Assign
-                  </button>
+              <div className="card-body">
+                <div className="order-meta">
+                  <div>
+                    <span className="meta-label">Amount</span>
+                    <span className="meta-value">${order.amount}</span>
+                  </div>
+                  {order.partner && (
+                    <div>
+                      <span className="meta-label">Partner</span>
+                      <span className="meta-value">
+                        {typeof order.partner === 'object' ? order.partner.name : partners.find(p => p._id === order.partner)?.name || 'Unassigned'}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Partner actions remain the same */}
-              {user.role === 'partner' && order.status === 'assigned' && (
-                <div className="partner-actions">
-                  <button 
-                    onClick={() => updateOrderStatus(order._id, 'accepted')}
-                    className="accept-btn"
-                  >
-                    Accept
-                  </button>
-                  <button 
-                    onClick={() => updateOrderStatus(order._id, 'rejected')}
-                    className="reject-btn"
-                  >
-                    Reject
-                  </button>
+                {/* Action Buttons */}
+                <div className="card-actions">
+                  {user.role === 'mcp' && order.status === 'pending' && (
+                    <div className="assign-section">
+                      <select value={selectedPartner} onChange={(e) => setSelectedPartner(e.target.value)} className="partner-select">
+                        <option value="">Select Partner</option>
+                        {partners.map(partner => (
+                          <option key={partner._id} value={partner._id}>{partner.name}</option>
+                        ))}
+                      </select>
+                      <button onClick={() => assignOrder(order._id)} disabled={!selectedPartner} className="action-btn accept">
+                        Assign
+                      </button>
+                    </div>
+                  )}
+                  {user.role === 'partner' && order.status === 'assigned' && (
+                    <div className="action-buttons">
+                      <button onClick={() => updateOrderStatus(order._id, 'accepted')} className="action-btn accept">
+                        Accept
+                      </button>
+                      <button onClick={() => updateOrderStatus(order._id, 'rejected')} className="action-btn reject">
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                  {user.role === 'partner' && order.status === 'accepted' && (
+                    <button onClick={() => updateOrderStatus(order._id, 'completed')} className="action-btn complete">
+                      Mark Completed
+                    </button>
+                  )}
                 </div>
-              )}
-
-              {user.role === 'partner' && order.status === 'accepted' && (
-                <button 
-                  onClick={() => updateOrderStatus(order._id, 'completed')}
-                  className="complete-btn"
-                >
-                  Mark Completed
-                </button>
-              )}
-            </li>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

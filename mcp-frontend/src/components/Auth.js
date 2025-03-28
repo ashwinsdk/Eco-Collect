@@ -43,27 +43,15 @@ function Auth({ onLogin }) {
   };
   if (!showAuth) {
     return (
-      <div className="landing-wrapper">
+      <div className="landing-page">
         <div className="landing-content">
           <h1 className="brand-heading">ECO-Collect</h1>
           <p className="tagline">Sustainable waste management for a cleaner future</p>
           <div className="auth-options">
-            <button 
-              className="auth-option-btn primary"
-              onClick={() => {
-                setShowAuth(true);
-                setIsLogin(true);
-              }}
-            >
+            <button className="auth-option-btn landing-btn-primary" onClick={() => { setShowAuth(true); setIsLogin(true); }}>
               Login
             </button>
-            <button 
-              className="auth-option-btn secondary"
-              onClick={() => {
-                setShowAuth(true);
-                setIsLogin(false);
-              }}
-            >
+            <button className="auth-option-btn landing-btn-secondary" onClick={() => { setShowAuth(true); setIsLogin(false); }}>
               Register
             </button>
           </div>

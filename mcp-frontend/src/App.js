@@ -32,21 +32,18 @@ function App() {
 
   return (
     <div className="app">
-       
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/auth" />} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth onLogin={handleLogin} />} />
         <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/auth" />}>
-          <Route index element={
-            user?.role === 'mcp' ? (
-              <>
-                <OrderForm user={user} />
-                <OrderList user={user} />
-              </>
-            ) : (
+          <Route index element={user?.role === 'mcp' ? (
+            <>
+              <OrderForm user={user} />
               <OrderList user={user} />
-            )
-          } />
+            </>
+          ) : (
+            <OrderList user={user} />
+          )} />
           <Route path="partners" element={<PartnerList user={user} />} />
           <Route path="wallet" element={<Wallet user={user} />} />
         </Route>

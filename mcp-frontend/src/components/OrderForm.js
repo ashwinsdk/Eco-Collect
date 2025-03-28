@@ -35,29 +35,41 @@ function OrderForm({ user }) {
   };
 
   return (
-    <div className="order-form">
-      <h3>Create New Order</h3>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="description"
-          placeholder="Order Description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="amount"
-          placeholder="Amount"
-          value={formData.amount}
-          onChange={handleChange}
-          min="1"
-          required
-        />
-        <button type="submit">Create Order</button>
-      </form>
+    <div className="modern-form-container">
+      <div className="form-card">
+        <h2>Create New Order</h2>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label className="form-label">Description</label>
+            <input
+              type="text"
+              name="description"
+              placeholder="What needs to be collected?"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              className="form-control"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Amount ($)</label>
+            <input
+              type="number"
+              name="amount"
+              placeholder="Estimated value"
+              value={formData.amount}
+              onChange={handleChange}
+              min="1"
+              required
+              className="form-control"
+            />
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="auth-btn">Create Order</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

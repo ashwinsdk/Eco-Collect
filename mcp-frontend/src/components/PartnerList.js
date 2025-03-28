@@ -38,29 +38,32 @@ function PartnerList({ user }) {
     fetchPartners();
   }, []);
 
-  if (loading) return <div>Loading partners...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (loading) return <div className="loading-spinner">Loading partners...</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
 
   return (
-    <div className="partner-list">
-      <h3>Available Delivery Partners</h3>
+    <div className="container">
+      <h2 className="content-title">Available Delivery Partners</h2>
       {partners.length === 0 ? (
-        <p>No delivery partners available</p>
+        <div className="empty-state">
+          <p>No delivery partners available</p>
+        </div>
       ) : (
-        <ul>
-          {partners.map(partner => (
-            <li key={partner._id}>
-              <div>
-                <strong>{partner.name}</strong>
-                <p>Email: {partner.email}</p>
-                <p>Wallet Balance: ${partner.wallet || 0}</p>
-              </div>
-            </li>
+        <div className="partner-grid">
+          {partners.map((partner) => (
+            <div key={partner._id} className="partner-card">
+              <h2 className="card-title">{partner.name}</h2>
+              <p className="card-text"><strong>Email:</strong> {partner.email}</p>
+              <p className="card-text">
+                <strong>Wallet Balance:</strong> <span className="wallet-amount">${partner.wallet || 0}</span>
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
+
 }
 
 export default PartnerList;
