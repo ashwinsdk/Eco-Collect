@@ -32,6 +32,7 @@ function App() {
 
   return (
     <div className="app">
+       
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/auth" />} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <Auth onLogin={handleLogin} />} />

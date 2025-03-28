@@ -1,24 +1,47 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
-function Dashboard({ user, onLogout }) {
+const Dashboard = ({ user, onLogout }) => {
   return (
-    <div className="dashboard">
-      <header>
-        <h2>Welcome, {user?.name} ({user?.role})</h2>
-        <button onClick={onLogout}>Logout</button>
-      </header>
-      <nav>
-        <Link to="/dashboard">Orders</Link>
-        {user?.role === 'mcp' && <Link to="/dashboard/partners">Partners</Link>}
-        <Link to="/dashboard/wallet">Wallet</Link>
-      </nav>
-      <main>
+    <div className="dashboard-layout">
+      <aside className="sidebar">
+        <div className="user-profile">
+          <h3>{user.name}</h3>
+          <p className="role-badge">{user.role}</p>
+        </div>
+        
+        <nav className="sidebar-nav">
+          <ul>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+            {user.role === 'mcp' && (
+              <>
+                {/* <li>
+                  <Link to="/dashboard/orders">My Orders</Link>
+                </li> */}
+                <li>
+                  <Link to="/dashboard/partners">Partners</Link>
+                </li>
+              </>
+            )}
+            <li>
+              <Link to="/dashboard/wallet">Wallet</Link>
+            </li>
+            <li>
+              <button onClick={onLogout} className="btn btn-secondary">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+      
+      <main className="main-content">
         <Outlet />
       </main>
     </div>
   );
-}
+};
 
-// Make sure to export as default
 export default Dashboard;

@@ -65,7 +65,7 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) throw new Error('Authentication required');
     
-    const decoded = jwt.verify(token, 'b86e79afdbfbfa22f187b1dea38e67ef39e94066f30a4375d07640a975260d697cd39e348a9c7c0905180d7c52986420bfce3447d3b58a9ba4cd0c54bbed56f3');
+    const decoded = jwt.verify(token, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
     req.user = await User.findById(decoded.id);
     if (!req.user) throw new Error('User not found');
     
@@ -80,7 +80,7 @@ app.post('/register', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    const token = jwt.sign({ id: user._id }, 'b86e79afdbfbfa22f187b1dea38e67ef39e94066f30a4375d07640a975260d697cd39e348a9c7c0905180d7c52986420bfce3447d3b58a9ba4cd0c54bbed56f3');
+    const token = jwt.sign({ id: user._id }, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
     res.status(201).json({ user, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -94,7 +94,7 @@ app.post('/login', async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
       throw new Error('Invalid credentials');
     }
-    const token = jwt.sign({ id: user._id }, 'b86e79afdbfbfa22f187b1dea38e67ef39e94066f30a4375d07640a975260d697cd39e348a9c7c0905180d7c52986420bfce3447d3b58a9ba4cd0c54bbed56f3');
+    const token = jwt.sign({ id: user._id }, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
     res.json({ user, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -102,13 +102,15 @@ app.post('/login', async (req, res) => {
 });
 
 // MCP Routes
+// In server.js (orders fetch endpoint)
 app.get('/mcp/orders', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'mcp') throw new Error('Unauthorized');
-    const orders = await Order.find({ mcp: req.user._id });
+    const orders = await Order.find({ mcp: req.user._id })
+      .populate('partner', 'name email'); // Add this
+    
     res.json(orders);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -335,23 +337,21 @@ app.get('/mcp/partners', auth, async (req, res) => {
 });
 
 // In server.js - Update the order assignment endpoint
-app.post('/mcp/orders/:id/assign', auth, async (req, res) => {
+// In server.js (order assignment endpoint)
+app.post('/orders/:id/assign', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'mcp') throw new Error('Unauthorized');
-
+    if (req.user.role !== 'mcp') throw new Error('Only MCP can assign orders');
+    
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       { 
         partner: req.body.partnerId,
-        status: 'assigned',
-        assignedAt: new Date()
+        status: 'assigned'
       },
       { new: true }
-    ).populate('partner', 'name email');
-
+    ).populate('partner', 'name email'); // Add this populate
+    
     if (!order) throw new Error('Order not found');
-
-    // Notify partner (you can implement WebSocket or push notifications here)
     res.json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });

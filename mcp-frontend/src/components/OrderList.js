@@ -13,33 +13,70 @@ function OrderList({ user }) {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        
-        // Fetch orders based on user role
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+  
+        // Fetch orders
         const ordersEndpoint = user.role === 'mcp' ? '/mcp/orders' : '/partner/orders';
         const ordersRes = await fetch(`http://localhost:5001${ordersEndpoint}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
+  
+        if (ordersRes.status === 401) {
+          // Handle unauthorized (token expired/invalid)
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/auth');
+          return;
+        }
+  
+        if (!ordersRes.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+  
         const ordersData = await ordersRes.json();
         setOrders(ordersData);
-
+  
         // Fetch partners if MCP user
         if (user.role === 'mcp') {
           const partnersRes = await fetch('http://localhost:5001/mcp/partners', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           });
+  
+          if (partnersRes.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/auth');
+            return;
+          }
+  
+          if (!partnersRes.ok) {
+            throw new Error('Failed to fetch partners');
+          }
+  
           const partnersData = await partnersRes.json();
           setPartners(partnersData);
         }
-
+  
       } catch (err) {
         setError(err.message);
+        if (err.message.includes('401')) {
+          navigate('/auth');
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
-  }, [user.role]);
+  }, [user.role, navigate]);
 
   const assignOrder = async (orderId) => {
     try {
@@ -55,10 +92,16 @@ function OrderList({ user }) {
         body: JSON.stringify({ partnerId: selectedPartner })
       });
       
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/auth');
+        return;
+      }
+      
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to assign order');
       
-      // Update local orders state
       setOrders(orders.map(order => 
         order._id === orderId ? data : order
       ));
@@ -66,6 +109,9 @@ function OrderList({ user }) {
       alert('Order assigned successfully!');
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('401')) {
+        navigate('/auth');
+      }
     }
   };
 
@@ -81,6 +127,13 @@ function OrderList({ user }) {
         body: JSON.stringify({ status })
       });
       
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/auth');
+        return;
+      }
+      
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to update order');
       
@@ -93,6 +146,9 @@ function OrderList({ user }) {
       }
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('401')) {
+        navigate('/auth');
+      }
     }
   };
 
@@ -113,10 +169,15 @@ function OrderList({ user }) {
                 <strong>{order.description}</strong>
                 <p>Amount: ${order.amount}</p>
                 <p>Status: {order.status}</p>
-                {order.partner && <p>Partner: {order.partner.name}</p>}
+                {order.partner && (
+                  <p>Partner: {typeof order.partner === 'object' 
+                    ? order.partner.name 
+                    : partners.find(p => p._id === order.partner)?.name || 'Loading...'}
+                  </p>
+                )}
               </div>
 
-              {/* MCP: Assign order to partner */}
+              {/* Rest of your JSX remains the same */}
               {user.role === 'mcp' && order.status === 'pending' && (
                 <div className="assign-section">
                   <select
@@ -139,7 +200,7 @@ function OrderList({ user }) {
                 </div>
               )}
 
-              {/* Partner: Accept/Reject assigned order */}
+              {/* Partner actions remain the same */}
               {user.role === 'partner' && order.status === 'assigned' && (
                 <div className="partner-actions">
                   <button 
@@ -157,7 +218,6 @@ function OrderList({ user }) {
                 </div>
               )}
 
-              {/* Partner: Mark as completed */}
               {user.role === 'partner' && order.status === 'accepted' && (
                 <button 
                   onClick={() => updateOrderStatus(order._id, 'completed')}
@@ -172,6 +232,7 @@ function OrderList({ user }) {
       )}
     </div>
   );
+
 }
 
 export default OrderList;
