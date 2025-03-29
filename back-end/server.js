@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -9,9 +10,12 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/mcp-delivery')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB Error:', err));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB Atlas Connected'))
+  .catch(err => {
+    console.error('MongoDB Atlas Connection Error:', err);
+    process.exit(1); // Exit process with failure
+  });
 
 // Models
 const userSchema = new mongoose.Schema({
@@ -65,7 +69,7 @@ const auth = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) throw new Error('Authentication required');
     
-    const decoded = jwt.verify(token, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
+    const decoded = jwt.verify(token, 'process.env.JWT_SECRET');
     req.user = await User.findById(decoded.id);
     if (!req.user) throw new Error('User not found');
     
@@ -80,7 +84,7 @@ app.post('/register', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    const token = jwt.sign({ id: user._id }, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
+    const token = jwt.sign({ id: user._id }, 'process.env.JWT_SECRET');
     res.status(201).json({ user, token });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -94,7 +98,7 @@ app.post('/login', async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
       throw new Error('Invalid credentials');
     }
-    const token = jwt.sign({ id: user._id }, '065c201bb10d4fc4af9f4dd27ba74d3aa5c21c8c9522d90af097962c0b74a2e49e35c032cd3b0333a4bf248cf367b29f325c87ed6ecf17d9311510c4f60acf54');
+    const token = jwt.sign({ id: user._id }, 'process.env.JWT_SECRET');
     res.json({ user, token });
   } catch (err) {
     res.status(400).json({ error: err.message });

@@ -9,15 +9,10 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb+srv://mcp-delivery-admin:123@cluster0.rfuprcn.mongodb.net/mcp-delivery?retryWrites=true&w=majority',
-  {
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
-  }
-)
-.then(() => console.log('Connected to Atlas!'))
-.catch(err => console.error('Atlas connection error:', err));
+mongoose.connect('mongodb://localhost:27017/mcp-delivery')
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB Error:', err));
+
 // Models
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -419,7 +414,7 @@ app.get('/wallet', auth, async (req, res) => {
   }
 });
 
-const PORT = 5005;
+const PORT = 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 app.get('/debug/auth', auth, (req, res) => {
