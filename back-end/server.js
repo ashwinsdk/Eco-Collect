@@ -431,3 +431,14 @@ app.get('/debug/auth', auth, (req, res) => {
     }
   });
 });
+// Root route
+app.get("/", (req, res) => {
+  res.json({
+    message: "Eco-Collect Backend API",
+    endpoints: {
+      auth: "/auth/login | /auth/register",
+      orders: "/api/orders",
+      users: "/api/users"
+    }
+  });
+});
